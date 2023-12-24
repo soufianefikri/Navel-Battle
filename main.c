@@ -1,9 +1,11 @@
 
 #include <stdio.h>
 #include <stdbool.h> 
-#include <stdlib.h>   
+#include <stdlib.h>
+#include <time.h>   
 #define nbofboats 5
 #define board_size 10
+#define total_boats 24 
 
 enum {
     WATER,
@@ -89,8 +91,9 @@ Boat* new_boat(int size){ // this function creates a new boat using ...
 	 return boat;
 }
 
-Board* filling_board(*Board board){
-	   
+Board* filling_board(Board *board){
+	   srand( time( NULL ) );
+	   int maxboats = total_boats;
 }
 
 
