@@ -3,7 +3,7 @@
 #include <stdbool.h> 
 #include <stdlib.h>
 #include <time.h>   
-#define nbofboats 5
+#define nbofboats 6
 #define board_size 10
 #define total_boats 24 
 
@@ -42,7 +42,11 @@ void initializeBoard(Board *board) {
     if(board->cell == NULL){
         printf("Problem creating board!!!!\n");
         exit(2);
-    }
+  Boat *boat=malloc(sizeof(Boat));
+	 if( boat == NULL){
+		printf("Captain we dont have a ship!\n");
+		exit(2);
+	 }  }
     for (int i = 0; i < board_size; i++) {
         board->cell[i] = (int *)malloc(board_size  * sizeof(int));
         if(board->cell[i] == NULL){
@@ -64,10 +68,9 @@ void show_boards(Game *game){
 		for(int j=0; j < board_size; j++){
 			printf("%d ",game->computer_board->cell[i][j]);
 		}
-		
 		printf("\n");
 	}
-	printf("\n~~~~~ Your Board ~~~~~\n");
+	printf("~~~~~ Your Board ~~~~~\n");	
 	printf("   0 1 2 3 4 5 6 7 8 9  \n\n");
 	for(int i=0; i < board_size; i++){
 		printf("%d  ",i);
@@ -82,18 +85,29 @@ void show_boards(Game *game){
 
 
 }
-Boat* new_boat(int size){ // this function creates a new boat using ...
-     Boat *boat=malloc(sizeof(Boat));
-	 if( boat == NULL){
-		printf("Captain we dont have a ship!\n");
-		exit(2);
+Boat new_boat(Boat boat,int orientation1, int size){ // this function creates a new boat using ...
+     if( orientation1 == 0){
+		boat.orientation='H';
 	 }
+	 else{
+		boat.orientation='V';
+	 }	
 	 return boat;
 }
 
-Board* filling_board(Board *board){
-	   srand( time( NULL ) );
-	   int maxboats = total_boats;
+Board* filling_board(Board *board){ 
+		
+	   
+	   Boat *boat=malloc(6 * sizeof(boat));
+	   if( boat == NULL){
+		    printf("Captain we dont have a ship!\n");
+		    exit(2);
+	   }
+	   for(int i=0;i < total_boats; i++){
+		  srand( time( NULL ) );
+		  boat[i]=new_boat(boat[i],rand() % 2,5);
+	   }
+	   return board;
 }
 
 
@@ -113,9 +127,7 @@ int main(){
 	for (int i = 0; i < board_size; i++) {
 		free(game->player_board->cell[i]);
 	}
-	// Free the array of pointers
-	free(game->player_board->cell);
-	// Free the Board structure
+	// Free the array of pointersif( boat == NULL)
 	free(game->player_board);
 	return 0;
 }
