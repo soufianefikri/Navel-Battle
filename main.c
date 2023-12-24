@@ -53,13 +53,26 @@ void initializeBoard(Board *board) {
     }
 }
 
-void show_board(Board *board){
+void show_boards(Game *game){
+	printf("~~ The Enemy's Board ~~~\n");
+
 	printf("   0 1 2 3 4 5 6 7 8 9  \n\n");
 	for(int i=0; i < board_size; i++){
 		printf("%d  ",i);
 		for(int j=0; j < board_size; j++){
-			printf("%d ",board->cell[i][j]);
+			printf("%d ",game->computer_board->cell[i][j]);
 		}
+		
+		printf("\n");
+	}
+	printf("\n~~~~~ Your Board ~~~~~\n");
+	printf("   0 1 2 3 4 5 6 7 8 9  \n\n");
+	for(int i=0; i < board_size; i++){
+		printf("%d  ",i);
+		for(int j=0; j < board_size; j++){
+			printf("%d ",game->player_board->cell[i][j]);
+		}
+		
 		printf("\n");
 	}
 
@@ -67,12 +80,18 @@ void show_board(Board *board){
 
 
 }
-Boat new_boat(int row, int column, int size){ // this function creates a new boat using ...
-     Boat boat;
-	 printf("hello world!!!");
+Boat* new_boat(int size){ // this function creates a new boat using ...
+     Boat *boat=malloc(sizeof(Boat));
+	 if( boat == NULL){
+		printf("Captain we dont have a ship!\n");
+		exit(2);
+	 }
 	 return boat;
 }
 
+Board* filling_board(*Board board){
+	   
+}
 
 
 int main(){
@@ -86,8 +105,7 @@ int main(){
     }
 	initializeBoard(game->player_board);
 	initializeBoard(game->computer_board);
-	show_board(game->player_board);
-	show_board(game->computer_board);
+	show_boards(game);
 	// Free memory for each row and the array of pointers
 	for (int i = 0; i < board_size; i++) {
 		free(game->player_board->cell[i]);
