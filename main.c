@@ -1,133 +1,72 @@
-
-#include <stdio.h>
-#include <stdbool.h> 
-#include <stdlib.h>
-#include <time.h>   
-#define nbofboats 6
-#define board_size 10
-#define total_boats 24 
-
-enum {
-    WATER,
-    WATER_SHOT,
-    BOAT,
-    WRECK,
-}Cell_type;
-/*ypedef struct{
-    int bow[2]; //the front of the boat
-    int stern[2];// the back of the boat
-}Boat_coordinates;*/
-
-typedef struct {
-    int size;
-    char orientation; // 'H' for horizontal, 'V' for vertical
-    int row;
-    int column;
-}Boat;
-
-typedef struct {
-    int **cell;
-
-}Board;
-
-typedef struct{
-	Board *player_board;
-	Board *computer_board;
-	Boat *player_boats;
-	Boat *computer_boats;
-}Game;
-
-void initializeBoard(Board *board) {
-    board->cell = (int **)malloc( board_size * sizeof(int *));
-    if(board->cell == NULL){
-        printf("Problem creating board!!!!\n");
-        exit(2);
-  Boat *boat=malloc(sizeof(Boat));
-	 if( boat == NULL){
-		printf("Captain we dont have a ship!\n");
-		exit(2);
-	 }  }
-    for (int i = 0; i < board_size; i++) {
-        board->cell[i] = (int *)malloc(board_size  * sizeof(int));
-        if(board->cell[i] == NULL){
-            printf("Problem creating board!!!!\n");
-            exit(2);
-            for (int j = 0; j < board_size; j++) {
-                board->cell[i][j] = WATER;
-            }
-        }
-    }
-}
-
-void show_boards(Game *game){
-	printf("~~ The Enemy's Board ~~~\n");
-
-	printf("   0 1 2 3 4 5 6 7 8 9  \n\n");
-	for(int i=0; i < board_size; i++){
-		printf("%d  ",i);
-		for(int j=0; j < board_size; j++){
-			printf("%d ",game->computer_board->cell[i][j]);
-		}
-		printf("\n");
-	}
-	printf("~~~~~ Your Board ~~~~~\n");	
-	printf("   0 1 2 3 4 5 6 7 8 9  \n\n");
-	for(int i=0; i < board_size; i++){
-		printf("%d  ",i);
-		for(int j=0; j < board_size; j++){
-			printf("%d ",game->player_board->cell[i][j]);
-		}
-		
-		printf("\n");
-	}
-
-	printf("\n%d : Water\n%d : Missed shot\n%d : Boat Down\n%d : Boat Hit\n",WATER,WATER_SHOT,WRECK,BOAT);
-
-
-}
-Boat new_boat(Boat boat,int orientation1, int size){ // this function creates a new boat using ...
-     if( orientation1 == 0){
-		boat.orientation='H';
-	 }
-	 else{
-		boat.orientation='V';
-	 }	
-	 return boat;
-}
-
-Board* filling_board(Board *board){ 
-		
-	   
-	   Boat *boat=malloc(6 * sizeof(boat));
-	   if( boat == NULL){
-		    printf("Captain we dont have a ship!\n");
-		    exit(2);
-	   }
-	   for(int i=0;i < total_boats; i++){
-		  srand( time( NULL ) );
-		  boat[i]=new_boat(boat[i],rand() % 2,5);
-	   }
-	   return board;
-}
+#include "header.h"
 
 
 int main(){
-	
-	Game *game= malloc(sizeof(Game)); // Allocate memory for the Game structure
-	game->player_board=malloc(sizeof(Board));
-	game->computer_board=malloc(sizeof(Board));
-    if (game == NULL || game->player_board == NULL || game->computer_board == NULL) {
-        printf("Problem creating board!\n");
-        exit(2);
+    srand(time(NULL));
+
+    GameBoard playerBoard, computerBoard;
+    initializeBoard(&playerBoard);
+    initializeBoard(&computerBoard);
+
+    // Generate boats for player and computer
+    for (int i = 0; i < NUM_BOATS; ++i) {
+        new_boat(&playerBoard, 0);
+        new_boat(&computerBoard, 0);
     }
-	initializeBoard(game->player_board);
-	initializeBoard(game->computer_board);
-	show_boards(game);
-	// Free memory for each row and the array of pointers
-	for (int i = 0; i < board_size; i++) {
-		free(game->player_board->cell[i]);
-	}
-	// Free the array of pointersif( boat == NULL)
-	free(game->player_board);
-	return 0;
+
+    int playerTurn = 1;
+
+    while (1) {
+        show_boards(&playerBoard, &computerBoard);
+
+        Coordinates target;
+        if (playerTurn) {
+            printf("Enter target coordinates (row col): ");
+            scanf("%d %d", &target.row, &target.col);
+        } else {
+            // Computer's turn: choose random target
+            target.row = rand() % BOARD_SIZE;
+            target.col = rand() % BOARD_SIZE;
+            printf("Computer chose: %d %d\n", target.row, target.col);
+        }
+
+        // Check if target is valid
+        if (target.row < 0 || target.row >= BOARD_SIZE || target.col < 0 || target.col >= BOARD_SIZE) {
+            printf("Invalid target coordinates. Try again.\n");
+            continue;
+        }
+
+        if (playerTurn) {
+            // Player's turn
+            if (isHit(&computerBoard, &target)) {
+                printf("You hit a boat!\n");
+            } else {
+                printf("You missed!\n");
+            }
+            updateBoard(&computerBoard, &target);
+
+            if (areAllBoatsSunk(&computerBoard)) {
+                printf("Congratulations! You sunk all the computer's boats.\n");
+                break;
+            }
+        } else {
+            // Computer's turn
+            if (isHit(&playerBoard, &target)) {
+                printf("Computer hit your boat!\n");
+            } else {
+                printf("Computer missed!\n");
+            }
+            updateBoard(&playerBoard, &target);
+
+            if (areAllBoatsSunk(&playerBoard)) {
+                printf("Oh no! All your boats are sunk.\n");
+                break;
+            }
+        }
+
+        playerTurn = !playerTurn; // Switch turns
+    }
+     // No explicit freeing needed for static arrays
+
+    return 0;
 }
